@@ -1,0 +1,32 @@
+{
+  "name": "@rantalainen/fivaldi-api-client",
+  "version": "0.0.1",
+  "description": "Third party Fivaldi API client.",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rantalainen/fivaldi-api-client.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "files": [
+    "dist/**/*"
+  ],
+  "bugs": {
+    "url": "https://github.com/rantalainen/fivaldi-api-client/issues"
+  },
+  "homepage": "https://github.com/rantalainen/fivaldi-api-client#readme",
+  "devDependencies": {
+    "typescript": "^4.6.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "got": "^11.8.3"
+  }
+}
