@@ -1,0 +1,1 @@
+{"method":"POST","url":"https://api.fivaldi.net/customer/api/companies/4CAB3A6B04015BA1E0531100820AA764/products/createProduct","headers":{"X-Fivaldi-Partner":"ws-RAN","X-Fivaldi-Timestamp":"1655110761","Content-Type":"application/json","Authorization":"Fivaldi +/vHndJL5exbm1Qx97/or9VYOU5SsfrCBFBhHLH+Ggg="},"body":"{\"productCode\":\"102\",\"description\":\"Testituote 2 API\"}"}
