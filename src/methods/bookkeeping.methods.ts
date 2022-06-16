@@ -17,8 +17,7 @@ import {
 
 export class BookkeepingMethods extends Methods {
   constructor(apiClient: FivaldiApiClient) {
-    if (!apiClient.options.cuid) throw new Error('cuid is missing');
-    super(apiClient, `/companies/${apiClient.options.cuid}/bookkeeping`);
+    super(apiClient, '/bookkeeping');
   }
 
   /** Gets all the vouchers fulfilling the search parameters. Returns an array of vouchers. */

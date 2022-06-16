@@ -1,9 +1,12 @@
 import * as crypto from 'crypto-js';
 import { Method } from 'got/dist/source';
-/** Every request must be signed with a message authentication code (MAC) composed of different values extracted from the request.
+
+/**
+ * Every request must be signed with a message authentication code (MAC) composed of different values extracted from the request.
  * The different values are combined to a string, separating them by a linefeed (unicode code point U+000A).
  * The resulting string is then hashed with HMAC SHA256, using the partner secret as a key.
- * The resulting hash is Base64 encoded and added to the Authorization header of each request, using "Fivaldi" as the authentication type. */
+ * The resulting hash is Base64 encoded and added to the Authorization header of each request, using "Fivaldi" as the authentication type.
+ */
 export async function getHeaders(partnerId: string, partnerSecret: string, method: Method, url: string, body: any): Promise<{}> {
   const LF = '\u000a';
 

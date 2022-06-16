@@ -30,12 +30,12 @@ export interface IGetVoucherTypesParams {
 }
 
 export interface IGetAccountBalanceParams {
-  /** Fetches accounts data for given month (YYYY/MM). */
-  month: string;
+  /** Fetches accounts data for given month (YYYYMM). */
+  month: number;
   /** Fetches accounts data having account number greater or same than minAccount. */
-  minAccount: string;
+  minAccount?: string;
   /** Fetches accounts data having account number smaller or same than minAccount. */
-  maxAccount: string;
+  maxAccount?: string;
 }
 
 export interface IGetAttachmentsParams {
@@ -177,7 +177,7 @@ export interface IVoucherImportRequest {
   /** Bookkeeping month in YYYYMM format. */
   bookkeepingMonth: number;
   /** Voucher vat type. 'CALCULATED' Fivaldi will not make any calculation. 'AUTO' Fivaldi will calculate vat based on default settings. */
-  vatType: 'CALCULATED' | 'AUTO';
+  vatType: string;
   /** A flag that instructs Fivaldi if it should validate sum of voucher entries to be 0. */
   validateEntrySum: boolean;
   voucherEntries: IVoucherEntryRequest[];

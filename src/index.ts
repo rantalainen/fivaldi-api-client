@@ -1,20 +1,20 @@
 import got, { Method, OptionsOfJSONResponseBody } from 'got';
-import { IFivaldiApiClientOptions } from './interfaces';
-import { UtilsMethods } from './methods/utils.methods';
+import { IFivaldiApiClientOptions, IGetCompaniesParams, IGetCompaniesResponse } from './interfaces';
 import { BookkeepingMethods } from './methods/bookkeeping.methods';
-import { ProductMethods } from './methods/product.methods';
+import { ProductMethods } from './methods/products.methods';
+import { PurchaseInvoicesMethods } from './methods/purchaseInvoices.methods';
 import { getHeaders } from './signature';
-import * as fs from 'fs';
 
 export class FivaldiApiClient {
   options: IFivaldiApiClientOptions;
 
-  readonly utils: UtilsMethods;
   readonly bookkeeping: BookkeepingMethods;
   readonly products: ProductMethods;
+  readonly purchaseInvoices: PurchaseInvoicesMethods;
 
   constructor(options: IFivaldiApiClientOptions) {
     options.apiBaseUrl = options.apiBaseUrl || 'https://api.fivaldi.net/customer/api';
+    options.timeout = options.timeout || 120000;
 
     if (!options?.partnerId) {
       throw new Error('missing options.partnerId');
@@ -27,8 +27,8 @@ export class FivaldiApiClient {
     this.options = options;
 
     this.bookkeeping = new BookkeepingMethods(this);
-    this.utils = new UtilsMethods(this);
     this.products = new ProductMethods(this);
+    this.purchaseInvoices = new PurchaseInvoicesMethods(this);
   }
 
   async request(method: Method, url: string, body?: any, params?: any): Promise<any> {
@@ -36,32 +36,64 @@ export class FivaldiApiClient {
     if (params) {
       url += '?' + new URLSearchParams(params).toString();
     }
+    console.log(`Sending '${method}' request to '${url}'`);
 
     const gotOptions: OptionsOfJSONResponseBody = {
       method,
       url,
-      headers: await getHeaders(this.options.partnerId, this.options.partnerSecret, method, url, body)
+      headers: await getHeaders(this.options.partnerId, this.options.partnerSecret, method, url, body),
+      timeout: this.options.timeout,
+      throwHttpErrors: false
     };
 
-    // If body is defined
+    // If body is defined, add the body to the request
     if (body) {
       gotOptions.body = JSON.stringify(body);
     }
 
-    fs.writeFileSync('./request.json', JSON.stringify(gotOptions));
-
     const result: any = await got({ ...gotOptions });
 
-    if (result.statusCode == 401 || result.statusCode == 403) throw new Error(`HTTP error: ${result.statusCode} ${result.statusMessage}`);
-    if (result.statusCode == 400 || result.statusCode == 404 || result.statusCode == 409)
-      throw new Error(`HTTP error: ${result.statusCode} ${result.statusMessage} (${result.body.message})`);
+    let response: any;
+    // If there is a body, parse and return it
+    if (result.body) {
+      response = JSON.parse(result.body);
+    } else {
+      // Else just return the empty body
+      response = result.body;
+    }
 
-    return result.body;
+    // If the status code is between 200 and 299 (=OK)
+    if (result.statusCode >= 200 || result.statusCode < 300) {
+      return response;
+    }
 
-    // const response: any = JSON.parse(result.body);
+    // Else, throw error with error response included
+    throw new Error(`HTTP Error: ${result.statusCode} ${result.statusMessage}
+    ${JSON.stringify(response)}`);
   }
 
-  setCuid(cuid: string): void {
+  /** Set CUID of the company. CUID is required for all methods except root methods. */
+  setCuid(cuid: string): string {
     this.options.cuid = cuid;
+    return this.options.cuid;
+  }
+
+  /** Returns the currently active CUID */
+  getCuid() {
+    return this.options.cuid;
+  }
+
+  async getPing(): Promise<any> {
+    return await this.request('GET', `${this.options.apiBaseUrl}/ping`);
+  }
+
+  /** Get list of customers */
+  async getCustomers(): Promise<IGetCompaniesResponse[]> {
+    return await this.request('GET', `${this.options.apiBaseUrl}/customers`);
+  }
+
+  /** Get list of companies this partner id has access to. Useful for getting CUIDs of companies. */
+  async getCompanies(params: IGetCompaniesParams): Promise<any> {
+    return await this.request('GET', `${this.options.apiBaseUrl}/companies`, null, params);
   }
 }

@@ -1,4 +1,5 @@
 import { FivaldiApiClient } from '../index';
+import { Methods } from '../methods';
 import {
   IProductEntityDetails,
   IGetAllProductsParams,
@@ -8,13 +9,11 @@ import {
   IProductEntityDescription,
   IProductUpdateParams,
   IProductEntityPosting
-} from '../interfaces/product.interfaces';
-import { Methods } from '../methods';
+} from '../interfaces/products.interfaces';
 
 export class ProductMethods extends Methods {
   constructor(apiClient: FivaldiApiClient) {
-    if (!apiClient.options.cuid) throw new Error('cuid is missing');
-    super(apiClient, `/companies/${apiClient.options.cuid}/products`);
+    super(apiClient, '/products');
   }
 
   /** Gets id values and descriptions for product groups, units, posting groups and posting codes. */
@@ -28,8 +27,8 @@ export class ProductMethods extends Methods {
   }
 
   /** Gets single product's complete product details, product descriptions with languages and product postings. */
-  async getProduct(params: IGetProductParams): Promise<IProductEntityDetails> {
-    return await super.request('GET', `/${params.id}`);
+  async getProduct(id: string, params?: IGetProductParams): Promise<IProductEntityDetails> {
+    return await super.request('GET', `/${id}`, null, params);
   }
 
   /** Creates a product. If descriptions is not given, Fivaldi will create one description with Company's language. Fivaldi will set missing posting groups to product that are not given. */

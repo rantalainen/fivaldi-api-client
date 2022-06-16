@@ -1,3 +1,28 @@
+/// PARAMS INTERFACES ///
+
+export interface IGetAllProductsParams {
+  /** Limit results with search word */
+  searchWord?: string;
+  /** Limit results with changed at date is given date or newer (dd.mm.yyyy) */
+  fromDate?: string;
+  /** Filter fields of the response objects, only ones provided will be included on response */
+  fields?: string;
+  [key: string]: any;
+}
+
+export interface IGetProductParams {
+  /** Filter fields of the response objects, only ones provided will be included on response */
+  fields?: string;
+  [key: string]: any;
+}
+
+export interface IProductUpdateParams {
+  /** Product code for the product which is updated */
+  productCode: string;
+}
+
+/// RESPONSE & REQUEST INTERFACES ///
+
 export interface IProductRegisterBasicDetails {
   productPostingCodeDTOS: {
     id: string;
@@ -18,16 +43,6 @@ export interface IProductRegisterBasicDetails {
   productGroupDetailsDTOS: [];
 }
 
-export interface IGetAllProductsParams {
-  /** Limit results with search word */
-  searchWord?: string;
-  /** Limit results with changed at date is given date or newer (dd.mm.yyyy) */
-  fromDate?: string;
-  /** Filter fields of the response objects, only ones provided will be included on response */
-  fields?: string;
-  [key: string]: any;
-}
-
 export interface IProductEntity {
   /** Product code (Tuotekoodi) */
   productCode: string;
@@ -37,19 +52,6 @@ export interface IProductEntity {
   eanCode: string;
   /** Fivaldi will set this when product is inserted or updated (Muutosaika) */
   changeTime: string;
-}
-
-export interface IGetProductParams {
-  /** Product code of product from register */
-  id: string;
-  /** Filter fields of the response objects, only ones provided will be included on response */
-  fields?: string;
-  [key: string]: any;
-}
-
-export interface IProductUpdateParams {
-  /** Product code for the product which is updated */
-  productCode: string;
 }
 
 export interface IProductEntityDetails {
