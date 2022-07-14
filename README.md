@@ -208,3 +208,4 @@ const purchaseInvoiceComment = await fivaldi.purchaseInvoices.createPurchaseInvo
 ## Changelog
 
 - 0.0.1 First release
+- 0.1.0 Added Chart of Accounts method and fixed error logic

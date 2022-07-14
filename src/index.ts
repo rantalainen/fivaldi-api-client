@@ -1,6 +1,7 @@
 import got, { Method, OptionsOfJSONResponseBody } from 'got';
 import { IFivaldiApiClientOptions, IGetCompaniesParams, IGetCompaniesResponse } from './interfaces';
 import { BookkeepingMethods } from './methods/bookkeeping.methods';
+import { ChartOfAccountsMethods } from './methods/chart-of-accounts.methods';
 import { ProductMethods } from './methods/products.methods';
 import { PurchaseInvoicesMethods } from './methods/purchaseInvoices.methods';
 import { getHeaders } from './signature';
@@ -11,6 +12,7 @@ export class FivaldiApiClient {
   readonly bookkeeping: BookkeepingMethods;
   readonly products: ProductMethods;
   readonly purchaseInvoices: PurchaseInvoicesMethods;
+  readonly chartOfAccounts: ChartOfAccountsMethods;
 
   constructor(options: IFivaldiApiClientOptions) {
     options.apiBaseUrl = options.apiBaseUrl || 'https://api.fivaldi.net/customer/api';
@@ -29,6 +31,7 @@ export class FivaldiApiClient {
     this.bookkeeping = new BookkeepingMethods(this);
     this.products = new ProductMethods(this);
     this.purchaseInvoices = new PurchaseInvoicesMethods(this);
+    this.chartOfAccounts = new ChartOfAccountsMethods(this);
   }
 
   async request(method: Method, url: string, body?: any, params?: any): Promise<any> {
@@ -63,7 +66,7 @@ export class FivaldiApiClient {
     }
 
     // If the status code is between 200 and 299 (=OK)
-    if (result.statusCode >= 200 || result.statusCode < 300) {
+    if (result.statusCode >= 200 && result.statusCode < 300) {
       return response;
     }
 
