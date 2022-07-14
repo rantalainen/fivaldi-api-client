@@ -89,6 +89,7 @@ The following API methods have been implemented:
 - `bookkeeping` Bookkeeping
 - `product` Product register
 - `purchaseInvoices` Purchase invoices
+- `chartOfAccounts` Chart of Accounts
 
 ### Bookkeeping examples
 
@@ -198,6 +199,12 @@ const purchaseInvoiceComment = await fivaldi.purchaseInvoices.createPurchaseInvo
 
 ```
 
+### Chart of Accounts example
+```ts
+// Get accounts and dimensions
+const chartOfAccounts = await fivaldi.chartOfAccounts.getChartOfAccounts();
+```
+
 ## Resources
 
 - Fivaldi website: https://www.visma.fi/visma-fivaldi/
@@ -209,3 +216,4 @@ const purchaseInvoiceComment = await fivaldi.purchaseInvoices.createPurchaseInvo
 
 - 0.0.1 First release
 - 0.1.0 Added Chart of Accounts method and fixed error logic
+- 0.1.1 Updated dependencies
