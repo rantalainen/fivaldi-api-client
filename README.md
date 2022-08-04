@@ -90,6 +90,7 @@ The following API methods have been implemented:
 - `product` Product register
 - `purchaseInvoices` Purchase invoices
 - `chartOfAccounts` Chart of Accounts
+- `archive` Archive of files
 
 ### Bookkeeping examples
 
@@ -149,7 +150,8 @@ const product = await fivaldi.products.updateProductAllFields({
 });
 
 // Update only the product fields that are given
-const product = await fivaldi.products.updateProduct({ purchaseCostPrice: 155 });
+const
+ product = await fivaldi.products.updateProduct({ purchaseCostPrice: 155 });
 
 // Create product language description (translation)
 const product = await fivaldi.products.createProductDescription(
@@ -205,6 +207,12 @@ const purchaseInvoiceComment = await fivaldi.purchaseInvoices.createPurchaseInvo
 const chartOfAccounts = await fivaldi.chartOfAccounts.getChartOfAccounts();
 ```
 
+### Archive of files example
+```ts
+// Get download url for the file with file id
+const downloadUrl = await fivaldi.archive.getFileUrl('123');
+```
+
 ## Resources
 
 - Fivaldi website: https://www.visma.fi/visma-fivaldi/
@@ -217,3 +225,4 @@ const chartOfAccounts = await fivaldi.chartOfAccounts.getChartOfAccounts();
 - 0.0.1 First release
 - 0.1.0 Added Chart of Accounts method and fixed error logic
 - 0.1.1 Updated dependencies
+- 0.2.0 Added Archive of files method

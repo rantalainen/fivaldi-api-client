@@ -1,5 +1,6 @@
 import got, { Method, OptionsOfJSONResponseBody } from 'got';
 import { IFivaldiApiClientOptions, IGetCompaniesParams, IGetCompaniesResponse } from './interfaces';
+import { ArchiveMethods } from './methods/archive.methods';
 import { BookkeepingMethods } from './methods/bookkeeping.methods';
 import { ChartOfAccountsMethods } from './methods/chart-of-accounts.methods';
 import { ProductMethods } from './methods/products.methods';
@@ -13,6 +14,7 @@ export class FivaldiApiClient {
   readonly products: ProductMethods;
   readonly purchaseInvoices: PurchaseInvoicesMethods;
   readonly chartOfAccounts: ChartOfAccountsMethods;
+  readonly archive: ArchiveMethods;
 
   constructor(options: IFivaldiApiClientOptions) {
     options.apiBaseUrl = options.apiBaseUrl || 'https://api.fivaldi.net/customer/api';
@@ -32,6 +34,7 @@ export class FivaldiApiClient {
     this.products = new ProductMethods(this);
     this.purchaseInvoices = new PurchaseInvoicesMethods(this);
     this.chartOfAccounts = new ChartOfAccountsMethods(this);
+    this.archive = new ArchiveMethods(this);
   }
 
   async request(method: Method, url: string, body?: any, params?: any): Promise<any> {
@@ -59,7 +62,8 @@ export class FivaldiApiClient {
     let response: any;
     // If there is a body, parse and return it
     if (result.body) {
-      response = JSON.parse(result.body);
+      if (typeof result.body === 'object') response = JSON.parse(result.body);
+      else response = result.body;
     } else {
       // Else just return the empty body
       response = result.body;
