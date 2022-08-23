@@ -7,7 +7,7 @@ export class ArchiveMethods extends Methods {
   }
 
   /** Gets download url for a file. */
-  async getFileUrl(fileId: string): Promise<String> {
+  async getFileUrl(fileId: string): Promise<string> {
     return await super.request('GET', `/files/${fileId}`);
   }
 }

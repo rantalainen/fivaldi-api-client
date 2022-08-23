@@ -5,6 +5,7 @@ import { BookkeepingMethods } from './methods/bookkeeping.methods';
 import { ChartOfAccountsMethods } from './methods/chart-of-accounts.methods';
 import { ProductMethods } from './methods/products.methods';
 import { PurchaseInvoicesMethods } from './methods/purchaseInvoices.methods';
+import { SalesMethods } from './methods/sales.methods';
 import { getHeaders } from './signature';
 
 export class FivaldiApiClient {
@@ -15,6 +16,7 @@ export class FivaldiApiClient {
   readonly purchaseInvoices: PurchaseInvoicesMethods;
   readonly chartOfAccounts: ChartOfAccountsMethods;
   readonly archive: ArchiveMethods;
+  readonly sales: SalesMethods;
 
   constructor(options: IFivaldiApiClientOptions) {
     options.apiBaseUrl = options.apiBaseUrl || 'https://api.fivaldi.net/customer/api';
@@ -35,6 +37,7 @@ export class FivaldiApiClient {
     this.purchaseInvoices = new PurchaseInvoicesMethods(this);
     this.chartOfAccounts = new ChartOfAccountsMethods(this);
     this.archive = new ArchiveMethods(this);
+    this.sales = new SalesMethods(this);
   }
 
   async request(method: Method, url: string, body?: any, params?: any): Promise<any> {
@@ -61,11 +64,10 @@ export class FivaldiApiClient {
 
     let response: any;
     // If there is a body, parse and return it
-    if (result.body) {
-      if (typeof result.body === 'object') response = JSON.parse(result.body);
-      else response = result.body;
-    } else {
-      // Else just return the empty body
+    try {
+      response = JSON.parse(result.body);
+    } catch (e) {
+      // Else just return the original body
       response = result.body;
     }
 
@@ -75,7 +77,7 @@ export class FivaldiApiClient {
     }
 
     // Else, throw error with error response included
-    throw new Error(`HTTP Error: ${result.statusCode} ${result.statusMessage}
+    throw new Error(`Fivaldi HTTP Error: ${result.statusCode} ${result.statusMessage}
     ${JSON.stringify(response)}`);
   }
 

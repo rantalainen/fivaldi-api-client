@@ -1,10 +1,11 @@
 {
   "name": "@rantalainen/fivaldi-api-client",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Third party Fivaldi API client.",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsc --watch",
+    "test": "nodemon test.js",
     "build": "tsc"
   },
   "repository": {

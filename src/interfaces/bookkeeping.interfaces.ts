@@ -72,7 +72,7 @@ export interface IFetchVoucherResponse {
   voucherEntries: IVoucherEntryResponse[];
 }
 
-interface IVoucherEntryResponse {
+export interface IVoucherEntryResponse {
   /** Voucher entry number inside voucher. */
   entryNumber: number;
   /** Voucher description. */
@@ -92,7 +92,7 @@ interface IVoucherEntryResponse {
   vat: IVoucherEntryVat;
 }
 
-interface IVoucherEntryVat {
+export interface IVoucherEntryVat {
   /** Fivaldi vat code. */
   vatCode: string;
   vatAmount: number;
@@ -109,7 +109,7 @@ export interface IVatCodeResponse {
   vatPercentages: IVatPercentageResponse[];
 }
 
-interface IVatPercentageResponse {
+export interface IVatPercentageResponse {
   /** Vat code in Fivaldi. */
   vatPercentageCode: string;
   percentage: number;
@@ -159,7 +159,7 @@ export interface IVoucherAttachmentResponse {
   archiveObjects: IArchiveObjectResponse[];
 }
 
-interface IArchiveObjectResponse {
+export interface IArchiveObjectResponse {
   objectId: string;
   objectDescription: string;
   sizeBytes: number;
@@ -183,7 +183,7 @@ export interface IVoucherImportRequest {
   voucherEntries: IVoucherEntryRequest[];
 }
 
-interface IVoucherEntryRequest {
+export interface IVoucherEntryRequest {
   /** Amount of voucher entry. */
   amount: number;
   accountNumber: number;
@@ -196,7 +196,7 @@ interface IVoucherEntryRequest {
   vat?: IVoucherEntryVatRequest;
 }
 
-interface IVoucherEntryVatRequest {
+export interface IVoucherEntryVatRequest {
   /** Vat code in Fivaldi. */
   vatCode: string;
   /** Voucher entry vat amount. */
