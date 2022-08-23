@@ -63,7 +63,7 @@ fivaldi.setCuid(cuid);
 
 If you don't know the business id of the company or you want to see all the customers your partner id has access to, you can use `getCustomers()` method.
 
-:heavy*exclamation_mark: \*\*\_NOTE:*\*\* One partner id can have access to multiple customers. One customer can have access to multiple companies.
+:heavy_exclamation_mark: **_NOTE:_** One partner id can have access to multiple customers. One customer can have access to multiple companies.
 
 ```ts
 const customers = await fivaldi.getCustomers();
