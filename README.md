@@ -93,11 +93,12 @@ After this, you can use all the methods available.
 The following API methods have been implemented:
 
 - `bookkeeping` Bookkeeping
-- `product` Product register
+- `products` Product register
 - `purchaseInvoices` Purchase invoices
 - `chartOfAccounts` Chart of Accounts
 - `archive` Archive of files
 - `sales` Sales orders
+- `customers` Customer register
 
 ### Bookkeeping examples
 
@@ -262,6 +263,64 @@ const { externalBatchId } = await fivaldi.sales.createOrders({
 });
 ```
 
+### Customer register examples
+
+```ts
+// Get customer register's basic details
+const basicDetails = await fivaldi.customers.getCustomerRegisterBasicDetails();
+
+// Get all customers with optional parameters
+const customerList = await fivaldi.customers.getAllCustomers({ searchWord: 'Bank' fromDate: '1.1.2020' });
+
+// Get more detailed customer info with customer id
+const customerDetails = await fivaldi.customers.getCustomer('1001');
+
+// Create a new customer
+const newCustomer = await fivaldi.customers.createCustomer(customerObject);
+
+// Update customer info giving all fields
+const updatedCustomer = await fivaldi.customers.updateCustomerAllFields('1001', customerObject);
+
+// Update customer info only giving updated fields
+const updatedCustomer = await fivaldi.customers.updateCustomer('1001', { instantMessagingType: '3' });
+
+// Create a new address to customer
+const newAddress = await fivaldi.customers.createAddress('1001', {
+  streetAddress: 'Mannerheimintie 63',
+  postalCode: '00250',
+  postalAddress: 'Helsinki',
+  countryCode: 'FI',
+  isMainAddress: true,
+  addressType: '01'
+});
+
+// Update customer's address giving all fields
+const updatedAddress = await fivaldi.customers.updateAddressAllFields('1001', '6', {
+  streetAddress: 'Mannerheimintie 63',
+  postalCode: '00250',
+  postalAddress: 'Helsinki',
+  countryCode: 'FI',
+  isMainAddress: true,
+  addressType: '03'
+});
+
+// Create a new bank account to customer
+const newBankAccount = await fivaldi.customers.createBankAccount('1001', {
+  bankName: 'Danske',
+  ibanNumber: 'FI0488888800009998',
+  countryId: 'FI',
+  swift: 'DABAFIHH'
+});
+
+// Update customer's bank account giving all fields
+const updatedBankAccount = await fivaldi.customers.updateBankAccountAllFields('1001', '00000005', {
+  bankName: 'Danske Bank',
+  ibanNumber: 'FI0488888800009998',
+  countryId: 'FI',
+  swift: 'DABAFIHH'
+});
+```
+
 ## Resources
 
 - Fivaldi website: https://www.visma.fi/visma-fivaldi/
@@ -276,3 +335,4 @@ const { externalBatchId } = await fivaldi.sales.createOrders({
 - 0.1.1 Updated dependencies
 - 0.2.0 Added Archive of files method
 - 0.3.0 Added Sales orders method
+- 0.4.0 Added Customer register method

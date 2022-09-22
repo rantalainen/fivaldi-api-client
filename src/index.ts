@@ -3,6 +3,7 @@ import { IFivaldiApiClientOptions, IGetCompaniesParams, IGetCompaniesResponse } 
 import { ArchiveMethods } from './methods/archive.methods';
 import { BookkeepingMethods } from './methods/bookkeeping.methods';
 import { ChartOfAccountsMethods } from './methods/chart-of-accounts.methods';
+import { CustomersMethods } from './methods/customers.methods';
 import { ProductMethods } from './methods/products.methods';
 import { PurchaseInvoicesMethods } from './methods/purchaseInvoices.methods';
 import { SalesMethods } from './methods/sales.methods';
@@ -17,6 +18,7 @@ export class FivaldiApiClient {
   readonly chartOfAccounts: ChartOfAccountsMethods;
   readonly archive: ArchiveMethods;
   readonly sales: SalesMethods;
+  readonly customers: CustomersMethods;
 
   constructor(options: IFivaldiApiClientOptions) {
     options.apiBaseUrl = options.apiBaseUrl || 'https://api.fivaldi.net/customer/api';
@@ -38,6 +40,7 @@ export class FivaldiApiClient {
     this.chartOfAccounts = new ChartOfAccountsMethods(this);
     this.archive = new ArchiveMethods(this);
     this.sales = new SalesMethods(this);
+    this.customers = new CustomersMethods(this);
   }
 
   async request(method: Method, url: string, body?: any, params?: any): Promise<any> {
