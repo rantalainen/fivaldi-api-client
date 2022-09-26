@@ -25,7 +25,7 @@ export class CustomersMethods extends Methods {
   }
 
   /** Get Fivaldi company's unique customer from register with all details */
-  async getCustomer(id: string): Promise<ICustomerEntityDetailsDTO[]> {
+  async getCustomer(id: string): Promise<ICustomerEntityDetailsDTO> {
     return await super.request('GET', `/${id}`);
   }
 

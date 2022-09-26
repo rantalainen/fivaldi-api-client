@@ -48,7 +48,7 @@ export class FivaldiApiClient {
     if (params) {
       url += '?' + new URLSearchParams(params).toString();
     }
-    console.log(`Sending '${method}' request to '${url}'`);
+    // console.log(`Sending '${method}' request to '${url}'`);
 
     const gotOptions: OptionsOfJSONResponseBody = {
       method,

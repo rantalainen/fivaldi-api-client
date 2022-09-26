@@ -132,7 +132,7 @@ export interface IProductRegisterBasicDetails {
   salesPostingGroupDTOList: ISalesPostingGroupDTO[];
   purchasesPostingGroupDTOList: [];
   customerGroupAndSegmentsDTOList: [];
-  fivaldiCompanyBankAccountDTOList: [];
+  fivaldiCompanyBankAccountDTOList: IFivaldiCompanyBankAccountDTO[];
   accountDimension1ValueDTOList: IAccountDimensionValueDTO[];
   accountDimension2ValueDTOList: IAccountDimensionValueDTO[];
   accountDimension3ValueDTOList: IAccountDimensionValueDTO[];
@@ -176,7 +176,12 @@ interface ICurrencyDTO {
   currencyRate: number;
 }
 
-interface ISalesPersonDTO {}
+interface ISalesPersonDTO {
+  salesPersonId: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+}
 
 interface ISalesPostingGroupDTO {
   postingGroupId: string;
@@ -190,6 +195,15 @@ interface ISalesPostingGroupDTO {
   defaultSk2: string;
   defaultSk3: string;
   defaultSk4: string;
+}
+
+interface IFivaldiCompanyBankAccountDTO {
+  id: string;
+  bankName: string;
+  bankNameInvoice: string;
+  iban: string;
+  accountNumber: string;
+  swift: string;
 }
 
 interface IAccountDimensionValueDTO {

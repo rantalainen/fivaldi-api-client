@@ -336,3 +336,4 @@ const updatedBankAccount = await fivaldi.customers.updateBankAccountAllFields('1
 - 0.2.0 Added Archive of files method
 - 0.3.0 Added Sales orders method
 - 0.4.0 Added Customer register method
+- 0.4.1 Fixed return value and updated interfaces
