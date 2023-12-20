@@ -11,6 +11,7 @@ export interface IGetAllProductsParams {
 }
 
 export interface IGetProductParams {
+  productCode: string;
   /** Filter fields of the response objects, only ones provided will be included on response */
   fields?: string;
   [key: string]: any;
@@ -70,7 +71,7 @@ export interface IProductEntityDetails {
   /** Unit id for product (Yksikkö) */
   unitId?: string;
   /** Is this product set as default to new sales orders (Vakiorivi myyntidokumentilla) */
-  defaultToInvoice?: true;
+  defaultToInvoice?: boolean;
   /** Purchase cost price for this product with max. 6 decimals (Omakustannushinta) */
   purchaseCostPrice?: number;
   /** Sales price without tax for this product with max. 6 decimals (Myyntihinta) */

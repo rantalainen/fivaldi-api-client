@@ -141,7 +141,7 @@ const voucherNumber = await fivaldi.bookkeeping.createVoucher(voucher);
 const products = await fivaldi.products.getAllProducts({ searchWord: 'travel' });
 
 // Get an extended info of single product
-const products = await fivaldi.products.getProduct('123');
+const products = await fivaldi.products.getProduct({ productCode: '123' });
 
 // Create a new product
 const product = await fivaldi.products.createProduct({
@@ -212,6 +212,9 @@ const purchaseInvoiceComment = await fivaldi.purchaseInvoices.createPurchaseInvo
 ```ts
 // Get accounts and dimensions
 const chartOfAccounts = await fivaldi.chartOfAccounts.getChartOfAccounts();
+
+// Add new account to a dimension
+const account = await fivaldi.chartOfAccounts.dimensions(accounts, { dimension: 1 });
 ```
 
 ### Archive of files example
@@ -327,13 +330,3 @@ const updatedBankAccount = await fivaldi.customers.updateBankAccountAllFields('1
 - Fivaldi API Documentation: https://ohjeet.visma.fi/articles/#!visma-fivaldi/visma-fivaldi-api
 - Fivaldi API Documentation (swagger): https://manuals.fivaldi.net/customer/api/index.html
 - Fivaldi login page: https://asp.fivaldi.net/fvlogin/login/connect
-
-## Changelog
-
-- 0.0.1 First release
-- 0.1.0 Added Chart of Accounts method and fixed error logic
-- 0.1.1 Updated dependencies
-- 0.2.0 Added Archive of files method
-- 0.3.0 Added Sales orders method
-- 0.4.0 Added Customer register method
-- 0.4.1 Fixed return value and updated interfaces

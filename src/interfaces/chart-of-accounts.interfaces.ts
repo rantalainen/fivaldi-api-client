@@ -24,7 +24,12 @@ export interface IGetChartOfAccountsParams {
   fields?: string;
 }
 
-/// RESPONSE INTERFACES ///
+export interface IDimensionsParams {
+  /** Available values: 1 (customer defined dimension), 2 (customer defined dimension), 3 (customer defined dimension), 4 (customer defined dimension) */
+  dimension: string;
+}
+
+/// RESPONSE & REQUEST INTERFACES ///
 
 export interface IGetChartOfAccountsResponse {
   /** Fivaldi company id. */
@@ -49,6 +54,18 @@ interface IBookkeepingAccount {
   dimension: string;
   account: string;
   description: string;
+  inUseBookkeeping: boolean;
+  inUseEstate: boolean;
+  inUsePurchases: boolean;
+  inUseSalaries: boolean;
+  inUseSales: boolean;
+}
+
+export interface IExternalAccountInformationDTO {
+  account: string;
+  finDescription: string;
+  sweDescription?: string;
+  engDescription?: string;
   inUseBookkeeping: boolean;
   inUseEstate: boolean;
   inUsePurchases: boolean;

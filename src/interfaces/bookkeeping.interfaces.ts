@@ -68,7 +68,7 @@ export interface IFetchVoucherResponse {
   /** Fiscal year id. */
   fiscalYearId: string;
   /** Flag for deleted status. */
-  isDeleted: true;
+  isDeleted: boolean;
   voucherEntries: IVoucherEntryResponse[];
 }
 
@@ -83,11 +83,17 @@ export interface IVoucherEntryResponse {
   balanceCode: number;
   /** Account number. */
   accountNumber: number;
+  /** Account name. */
+  accountName: string;
   dimension: {
     dimension1: string;
+    dimension1Name: string;
     dimension2: string;
+    dimension2Name: string;
     dimension3: string;
+    dimension3Name: string;
     dimension4: string;
+    dimension4Name: string;
   };
   vat: IVoucherEntryVat;
 }
@@ -97,7 +103,9 @@ export interface IVoucherEntryVat {
   vatCode: string;
   vatAmount: number;
   vatAccount: string;
+  vatAccountName: string;
   vatAccount2: string;
+  vatAccount2Name: string;
 }
 
 export interface IVatCodeResponse {

@@ -9,8 +9,14 @@ export interface IGetPurchaseInvoicesParams {
   invoiceStatus?: string;
   /** Filter invoices by create time, dd.mm.yyyy%20hh:mm:ss */
   createTimeAfter?: string;
+  /** Filter invoices by create time, dd.mm.yyyy%20hh:mm:ss */
+  createTimeBefore?: string;
   /** Filter invoices by change time, dd.mm.yyyy%20hh:mm:ss */
   changeTimeAfter?: string;
+  /** Filter invoices by change time, dd.mm.yyyy%20hh:mm:ss */
+  changeTimeBefore?: string;
+  /** Whether to include all invoice related changes in change time filter. */
+  fetchAllChangeTimes?: boolean;
   /** Whether to include row change times in change time filter. */
   includeRowChangeTimes?: boolean;
   /** Include attachment ids related to invoices, increases query time. */
@@ -107,7 +113,7 @@ export interface IPostPurchaseInvoice {
   bookkeepingDimension4?: string;
   /** B = gross, N = net */
   vatType?: string;
-  approvedForPaying?: true;
+  approvedForPaying?: boolean;
   ibanFrom?: string;
   workSiteKey?: number;
   additionalInfo1?: string;
@@ -217,13 +223,13 @@ export interface IGetPurchaseInvoice {
   clearingCode?: string;
   crossBorderPaymentType?: string;
   crossBorderBankFeeSharing?: string;
-  deleted?: true;
+  deleted?: boolean;
   bookkeepingAccount?: string;
   bookkeepingDimension1?: string;
   bookkeepingDimension2?: string;
   bookkeepingDimension3?: string;
   bookkeepingDimension4?: string;
-  approvedForPaying?: true;
+  approvedForPaying?: boolean;
   vatType?: string;
   ibanFrom?: string;
   workSiteKey?: number;
@@ -273,7 +279,7 @@ export interface IPurchaseInvoiceRow {
   accrualEndDate?: string;
   accrualType?: string;
   accrualAccount?: string;
-  accrualgVatIncluded?: true;
+  accrualgVatIncluded?: boolean;
   createTime?: string;
   createUser?: string;
   changeTime?: string;
@@ -327,13 +333,13 @@ interface IPurchaseInvoice {
   clearingCode?: string;
   crossBorderPaymentType?: string;
   crossBorderBankFeeSharing?: string;
-  deleted?: true;
+  deleted?: boolean;
   bookkeepingAccount?: string;
   bookkeepingDimension1?: string;
   bookkeepingDimension2?: string;
   bookkeepingDimension3?: string;
   bookkeepingDimension4?: string;
-  approvedForPaying?: true;
+  approvedForPaying?: boolean;
   vatType?: string;
   ibanFrom?: string;
   workSiteKey?: number;
@@ -368,7 +374,7 @@ export interface IPurchaseInvoiceComment {
   /** User that created the comment (checked by the API). */
   createUser?: string;
   /** Marks important comments. */
-  isImportant?: true;
+  isImportant?: boolean;
   /** Date when the comment is deleted. */
   deleteOn?: string;
 }

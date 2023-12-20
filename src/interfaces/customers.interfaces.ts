@@ -259,5 +259,6 @@ export interface ICustomerEntityDTO {
   email2: string;
   phoneNumber: string;
   phoneNumber2: string;
+  externalId: string;
   changeTime: string;
 }

@@ -27,8 +27,8 @@ export class ProductMethods extends Methods {
   }
 
   /** Gets single product's complete product details, product descriptions with languages and product postings. */
-  async getProduct(id: string, params?: IGetProductParams): Promise<IProductEntityDetails> {
-    return await super.request('GET', `/${id}`, null, params);
+  async getProduct(params: IGetProductParams): Promise<IProductEntityDetails> {
+    return await super.request('GET', `/getProduct`, null, params);
   }
 
   /** Creates a product. If descriptions is not given, Fivaldi will create one description with Company's language. Fivaldi will set missing posting groups to product that are not given. */
