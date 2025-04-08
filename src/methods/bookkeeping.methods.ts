@@ -46,7 +46,7 @@ export class BookkeepingMethods extends Methods {
   }
 
   /** Gets a list of account balances, credit and debit sums. */
-  async getAccountBalance(params: IGetAccountBalanceParams): Promise<IAccountBalance> {
+  async getAccountBalance(params: IGetAccountBalanceParams): Promise<IAccountBalance[]> {
     return await super.request('GET', '/accountBalance', null, params);
   }
 
@@ -56,7 +56,7 @@ export class BookkeepingMethods extends Methods {
   }
 
   /** Get a list of voucher attachments for specific company */
-  async getAttachments(params: IGetAttachmentsParams): Promise<IGetAttachmentsParams> {
+  async getAttachments(params: IGetAttachmentsParams): Promise<IGetAttachmentsParams[]> {
     return await super.request('GET', '/vouchers/attachments', null, params);
   }
 }
