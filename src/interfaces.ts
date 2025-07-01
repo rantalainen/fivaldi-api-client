@@ -1,32 +1,21 @@
-export interface IFivaldiApiClientOptions {
-  /** Fivaldi partner ID for authentication */
+import { ApiConfig } from './api';
+import CacheableLookup from 'cacheable-lookup';
+import https from 'https';
+
+export interface FivaldiApiClientOptions {
+  /** Partner ID that you get from Fivaldi */
   partnerId: string;
-
-  /** Fivaldi parnter secret for authentication */
+  /** Partner secret that you get from Fivaldi */
   partnerSecret: string;
+}
 
-  /** Fivaldi customer's cuid */
-  cuid?: string;
-
-  /** API base url, 'https://api.fivaldi.net/customer/api' by default */
-  apiBaseUrl?: string;
-
-  /** Request timeout, defaults to 120000 (120 secs) */
+export interface FivaldiApiClientConfig extends ApiConfig<any> {
+  /** API base url, by default: `https://api.fivaldi.net/customer/api`. */
+  baseURL?: string;
+  /** Request timeout in milliseconds, defaults to 120000 (120 secs) */
   timeout?: number;
-}
-
-export interface IGetCompaniesParams {
-  /** Search by business id (Y-tunnus) */
-  businessId?: string;
-  /** Search by Fivaldi customer id */
-  customerId?: string;
-  /** Filter fields of the response objects, only ones provided will be included */
-  fields?: string;
-}
-
-export interface IGetCompaniesResponse {
-  customerId: string;
-  name1: string;
-  name2: string;
-  businessId: string;
+  /** Instance of `https.Agent` or `true` to enable internal Keep Alive Agent, defaults to `true` */
+  keepAliveAgent?: boolean | https.Agent;
+  /** Instance of `cacheable-lookup` or `true` to enable internal DNS cache, defaults to `true` */
+  dnsCache?: boolean | CacheableLookup;
 }

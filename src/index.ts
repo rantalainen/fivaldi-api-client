@@ -1,111 +1,128 @@
-import got, { Method, OptionsOfJSONResponseBody } from 'got';
-import { IFivaldiApiClientOptions, IGetCompaniesParams, IGetCompaniesResponse } from './interfaces';
-import { ArchiveMethods } from './methods/archive.methods';
-import { BookkeepingMethods } from './methods/bookkeeping.methods';
-import { ChartOfAccountsMethods } from './methods/chart-of-accounts.methods';
-import { CustomersMethods } from './methods/customers.methods';
-import { ProductMethods } from './methods/products.methods';
-import { PurchaseInvoicesMethods } from './methods/purchaseInvoices.methods';
-import { SalesMethods } from './methods/sales.methods';
-import { getHeaders } from './signature';
+import { Api, ApiConfig } from './api';
+import { AxiosRequestConfig } from 'axios';
+import { HttpsAgent } from 'agentkeepalive';
+import { FivaldiApiClientConfig, FivaldiApiClientOptions } from './interfaces';
+import { FileBuffer } from './file-buffer';
+import https from 'https';
+import CacheableLookup from 'cacheable-lookup';
+import FormData from 'form-data';
+
+// DNS cache to prevent ENOTFOUND and other such issues
+const dnsCache = new CacheableLookup();
+let dnsCacheInstalled = false;
+
+// https://learn.microsoft.com/en-us/azure/app-service/app-service-web-nodejs-best-practices-and-troubleshoot-guide#my-node-application-is-making-excessive-outbound-calls
+// https://github.com/MicrosoftDocs/azure-docs/issues/29600#issuecomment-607990556
+const httpsAgent = new HttpsAgent({
+  maxSockets: 32,
+  maxFreeSockets: 10,
+  timeout: 30000,
+  freeSocketTimeout: 4500,
+  socketActiveTTL: 60000
+});
 
 export class FivaldiApiClient {
-  options: IFivaldiApiClientOptions;
+  options: FivaldiApiClientOptions;
+  config: Omit<FivaldiApiClientConfig, 'keepAliveAgent' | 'dnsCache'>;
+  readonly api: FivaldiApiClientInstance;
 
-  readonly bookkeeping: BookkeepingMethods;
-  readonly products: ProductMethods;
-  readonly purchaseInvoices: PurchaseInvoicesMethods;
-  readonly chartOfAccounts: ChartOfAccountsMethods;
-  readonly archive: ArchiveMethods;
-  readonly sales: SalesMethods;
-  readonly customers: CustomersMethods;
+  constructor(options: FivaldiApiClientOptions, config: FivaldiApiClientConfig = {}) {
+    // Set default config
+    config.baseURL = config.baseURL || 'hhttps://api.fivaldi.net/customer/api';
+    config.timeout = config.timeout || 120000;
 
-  constructor(options: IFivaldiApiClientOptions) {
-    options.apiBaseUrl = options.apiBaseUrl || 'https://api.fivaldi.net/customer/api';
-    options.timeout = options.timeout || 120000;
-
-    if (!options?.partnerId) {
-      throw new Error('missing options.partnerId');
+    if (!options.partnerId || !options.partnerSecret) {
+      throw new Error('FivaldiApiClient requires partnerId and partnerSecret options.');
     }
 
-    if (!options?.partnerSecret) {
-      throw new Error('missing options.partnerSecret');
+    // If axios config httpsAgent is not set
+    if (!config.httpsAgent) {
+      // Use internal keepAliveAgent by default
+      if (config.keepAliveAgent === true || config.keepAliveAgent === undefined) {
+        config.httpsAgent = httpsAgent;
+      } else {
+        if (config.keepAliveAgent === false) {
+          config.httpsAgent = new https.Agent({ keepAlive: false });
+        } else {
+          config.httpsAgent = config.keepAliveAgent;
+        }
+      }
     }
+
+    // Use internal dnsCache by default
+    if (config.dnsCache === true || config.dnsCache === undefined) {
+      if (!dnsCacheInstalled) {
+        dnsCache.install(config.httpsAgent);
+        dnsCacheInstalled = true;
+      }
+    }
+
+    // Delete custom properties before config is assigned
+    delete config.keepAliveAgent;
+    delete config.dnsCache;
 
     this.options = options;
+    this.config = config;
 
-    this.bookkeeping = new BookkeepingMethods(this);
-    this.products = new ProductMethods(this);
-    this.purchaseInvoices = new PurchaseInvoicesMethods(this);
-    this.chartOfAccounts = new ChartOfAccountsMethods(this);
-    this.archive = new ArchiveMethods(this);
-    this.sales = new SalesMethods(this);
-    this.customers = new CustomersMethods(this);
+    // Initialize Example Api Client Instance
+    this.api = new FivaldiApiClientInstance({
+      ...this.config,
+      securityWorker: this.config.securityWorker || this.securityWorker
+    });
+    this.api.setSecurityData(this);
+
+    // Install axios error handler
+    this.installErrorHandler();
   }
 
-  async request(method: Method, url: string, body?: any, params?: any): Promise<any> {
-    // If there are search parameters, include them in the url
-    if (params) {
-      url += '?' + new URLSearchParams(params).toString();
-    }
-    // console.log(`Sending '${method}' request to '${url}'`);
+  private installErrorHandler() {
+    this.api.instance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        error.message = `HTTP error ${error.response.status} (${error.response.statusText}): ` + JSON.stringify(error.response.data);
+        throw error;
+      }
+    );
+  }
 
-    const gotOptions: OptionsOfJSONResponseBody = {
-      method,
-      url,
-      headers: await getHeaders(this.options.partnerId, this.options.partnerSecret, method, url, body),
-      timeout: this.options.timeout,
-      throwHttpErrors: false
+  private async securityWorker(fivaldi: FivaldiApiClient) {
+    const axiosRequestConfig: AxiosRequestConfig = {};
+
+    axiosRequestConfig.headers = {
+      Authorization: ''
     };
 
-    // If body is defined, add the body to the request
-    if (body) {
-      gotOptions.body = JSON.stringify(body);
-    }
+    return axiosRequestConfig;
+  }
+}
 
-    const result: any = await got({ ...gotOptions });
-
-    let response: any;
-    // If there is a body, parse and return it
-    try {
-      response = JSON.parse(result.body);
-    } catch (e) {
-      // Else just return the original body
-      response = result.body;
-    }
-
-    // If the status code is between 200 and 299 (=OK)
-    if (result.statusCode >= 200 && result.statusCode < 300) {
-      return response;
-    }
-
-    // Else, throw error with error response included
-    throw new Error(`Fivaldi HTTP Error: ${result.statusCode} ${result.statusMessage}
-    ${JSON.stringify(response)}`);
+class FivaldiApiClientInstance extends Api<any> {
+  constructor(config?: ApiConfig<any>) {
+    super(config);
   }
 
-  /** Set CUID of the company. CUID is required for all methods except root methods. */
-  setCuid(cuid: string): string {
-    this.options.cuid = cuid;
-    return this.options.cuid;
+  // Override createFormData because FormData needs to be imported manually
+  protected createFormData(input: Record<string, unknown>): any {
+    return Object.keys(input || {}).reduce((formData, key) => {
+      const property = input[key];
+      const propertyContent: any[] = property instanceof Array ? property : [property];
+
+      for (const formItem of propertyContent) {
+        const isFileType = formItem instanceof FileBuffer;
+
+        if (isFileType) {
+          formData.append(key, formItem.buffer, {
+            filename: formItem.name,
+            contentType: formItem.type
+          });
+        } else {
+          formData.append(key, this.stringifyFormItem(formItem));
+        }
+      }
+
+      return formData;
+    }, new FormData());
   }
 
-  /** Returns the currently active CUID */
-  getCuid() {
-    return this.options.cuid;
-  }
-
-  async getPing(): Promise<any> {
-    return await this.request('GET', `${this.options.apiBaseUrl}/ping`);
-  }
-
-  /** Get list of customers */
-  async getCustomers(): Promise<IGetCompaniesResponse[]> {
-    return await this.request('GET', `${this.options.apiBaseUrl}/customers`);
-  }
-
-  /** Get list of companies this partner id has access to. Useful for getting CUIDs of companies. */
-  async getCompanies(params: IGetCompaniesParams): Promise<any> {
-    return await this.request('GET', `${this.options.apiBaseUrl}/companies`, null, params);
-  }
+  helpers = {};
 }
