@@ -1,39 +1,48 @@
-# example-api-client
+# fivaldi-api-client
 
-**ExampleApiClient** is a third party [Example API](https://example.com/docs/) client for NodeJS. It is a wrapper around an API client that has been [automatically generated](https://www.npmjs.com/package/swagger-typescript-api) using the [OpenAPI schema](https://example.com/openapi.json) provided by Example.
+**Fivaldi Api Client** is a third party [Fivaldi API](https://manuals.fivaldi.net/customer/api/index.html) client for NodeJS. It is a wrapper around an API client that has been [automatically generated](https://www.npmjs.com/package/swagger-typescript-api) using the [OpenAPI schema](https://manuals.fivaldi.net/customer/api/swagger.yaml) provided by Fivaldi.
 
 ## Installation
 
 Add to project's package.json:
 
 ```
-npm install @rantalainen/example-api-client
+npm install @rantalainen/fivaldi-api-client
 ```
 
 ### Import
 
-```javascript
-import { ExampleApiClient } from '@rantalainen/example-api-client';
+```typescript
+import { FivaldiApiClient } from '@rantalainen/fivaldi-api-client';
 ```
 
 ## Setup client with options
 
-In order to obtain an API key, please contact Example Support. An API key is needed to access all API functions.
+In order to obtain partner ID and partner secret, please contact Fivaldi Support. Partner id and partner secret are needed to access API functions. More information from [Fivaldi docs](https://support.fivaldi.fi/support/solutions/articles/77000567542-fivaldi-api).
 
-```javascript
-const example = new ExampleApiClient(
+```typescript
+const fivaldi = new FivaldiApiClient(
   {
-    apiKey: 'api_key'
+    partnerId: 'yourPartnerId',
+    partnerSecret: 'yourPartnerSecret',
+    // Optional arguments related to rate limiting
+    replenishRate: 2,
+    burstCapacity: 10
   },
   {
-    baseURL: 'https://dev.example.com'
+    // Optional config options
+    baseURL: 'https://api.fivaldi.net/customer/api',
+    timeout: 120000,
+    keepAliveAgent: true,
+    dnsCache: true
   }
 );
 ```
 
-Available methods can be found in the [API documentation](https://example.com/docs/).
+Available methods can be found in the [API documentation](https://manuals.fivaldi.net/customer/api/swagger.yaml).
 
 ## Resources
 
-- Example: https://example.com/
-- Example Developer Guide: https://example.com/docs/
+- Fivaldi website: https://www.visma.fi/visma-fivaldi/
+- Fivaldi API Documentation: https://support.fivaldi.fi/support/solutions/articles/77000567542-fivaldi-api
+- Fivaldi API Documentation (swagger): https://manuals.fivaldi.net/customer/api/index.html

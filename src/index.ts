@@ -1,11 +1,11 @@
 import { Api, ApiConfig } from './api';
-import { AxiosRequestConfig } from 'axios';
-import { HttpsAgent } from 'agentkeepalive';
+import { addAuthHeaders } from './signature';
+import { RateLimiter } from './rate-limiter';
 import { FivaldiApiClientConfig, FivaldiApiClientOptions } from './interfaces';
-import { FileBuffer } from './file-buffer';
-import https from 'https';
+import { InternalAxiosRequestConfig } from 'axios';
+import { HttpsAgent } from 'agentkeepalive';
 import CacheableLookup from 'cacheable-lookup';
-import FormData from 'form-data';
+import https from 'https';
 
 // DNS cache to prevent ENOTFOUND and other such issues
 const dnsCache = new CacheableLookup();
@@ -25,10 +25,14 @@ export class FivaldiApiClient {
   options: FivaldiApiClientOptions;
   config: Omit<FivaldiApiClientConfig, 'keepAliveAgent' | 'dnsCache'>;
   readonly api: FivaldiApiClientInstance;
+  private rateLimiter: RateLimiter;
 
   constructor(options: FivaldiApiClientOptions, config: FivaldiApiClientConfig = {}) {
-    // Set default config
-    config.baseURL = config.baseURL || 'hhttps://api.fivaldi.net/customer/api';
+    // Set config or use default values
+    config.baseURL = config.baseURL || 'https://api.fivaldi.net/customer/api';
+    // Make sure that the base URL does not end with a slash
+    if (config.baseURL.endsWith('/')) config.baseURL = config.baseURL.slice(0, -1);
+
     config.timeout = config.timeout || 120000;
 
     if (!options.partnerId || !options.partnerSecret) {
@@ -64,35 +68,70 @@ export class FivaldiApiClient {
     this.options = options;
     this.config = config;
 
-    // Initialize Example Api Client Instance
+    // Initialize rate limiter with default values (will be updated from API responses)
+    this.rateLimiter = new RateLimiter(options.replenishRate, options.burstCapacity);
+
+    // Initialize Fivaldi Api Client Instance
     this.api = new FivaldiApiClientInstance({
-      ...this.config,
-      securityWorker: this.config.securityWorker || this.securityWorker
+      ...this.config
     });
-    this.api.setSecurityData(this);
+
+    // Install rate limiter interceptor
+    this.installRateLimiter();
 
     // Install axios error handler
     this.installErrorHandler();
+
+    // Install security worker
+    this.installRequestSigner();
+  }
+
+  // Create a rate limiter interceptor that waits for tokens before allowing requests
+  private installRateLimiter() {
+    this.api.instance.interceptors.request.use(async (axiosRequestConfig: InternalAxiosRequestConfig) => {
+      // Wait for rate limiter to allow the request
+      await this.rateLimiter.waitUntilAvailable();
+      return axiosRequestConfig;
+    });
+  }
+
+  // Create a custom security worker installer that adds the Authorization header to every request
+  private installRequestSigner() {
+    this.api.instance.interceptors.request.use(async (axiosRequestConfig: InternalAxiosRequestConfig) => {
+      // Call the auth function to get the auth headers
+      const authHeaders = await addAuthHeaders(this.options.partnerId, this.options.partnerSecret, axiosRequestConfig);
+      // Add auth headers to the request config
+      Object.entries(authHeaders).forEach(([key, value]) => {
+        axiosRequestConfig.headers.set(key, value);
+      });
+
+      return axiosRequestConfig;
+    });
   }
 
   private installErrorHandler() {
     this.api.instance.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        // Update rate limiter from response headers
+        if (response.headers) {
+          this.rateLimiter.updateFromHeaders(response.headers as Record<string, string | number>);
+        }
+        return response;
+      },
       (error) => {
-        error.message = `HTTP error ${error.response.status} (${error.response.statusText}): ` + JSON.stringify(error.response.data);
+        // Update rate limiter from error response headers if available
+        if (error.response?.headers) {
+          this.rateLimiter.updateFromHeaders(error.response.headers as Record<string, string | number>);
+        }
+
+        if (error.response) {
+          error.message =
+            `Fivaldi HTTP error ${error.response.status} (${error.response.statusText}): ` + JSON.stringify(error.response.data);
+        }
+
         throw error;
       }
     );
-  }
-
-  private async securityWorker(fivaldi: FivaldiApiClient) {
-    const axiosRequestConfig: AxiosRequestConfig = {};
-
-    axiosRequestConfig.headers = {
-      Authorization: ''
-    };
-
-    return axiosRequestConfig;
   }
 }
 
@@ -101,28 +140,6 @@ class FivaldiApiClientInstance extends Api<any> {
     super(config);
   }
 
-  // Override createFormData because FormData needs to be imported manually
-  protected createFormData(input: Record<string, unknown>): any {
-    return Object.keys(input || {}).reduce((formData, key) => {
-      const property = input[key];
-      const propertyContent: any[] = property instanceof Array ? property : [property];
-
-      for (const formItem of propertyContent) {
-        const isFileType = formItem instanceof FileBuffer;
-
-        if (isFileType) {
-          formData.append(key, formItem.buffer, {
-            filename: formItem.name,
-            contentType: formItem.type
-          });
-        } else {
-          formData.append(key, this.stringifyFormItem(formItem));
-        }
-      }
-
-      return formData;
-    }, new FormData());
-  }
-
+  // If you need to add custom methods or properties, do it here
   helpers = {};
 }

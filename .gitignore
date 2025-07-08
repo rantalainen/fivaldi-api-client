@@ -104,4 +104,4 @@ dist
 .tern-port
 
 nodemon.json
-test.js
+test.*

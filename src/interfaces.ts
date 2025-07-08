@@ -7,6 +7,10 @@ export interface FivaldiApiClientOptions {
   partnerId: string;
   /** Partner secret that you get from Fivaldi */
   partnerSecret: string;
+  /** Rate limit replenish rate. This will automatically update from the first response header. */
+  replenishRate?: number;
+  /** Rate limit burst capacity. This will automatically update from the first response header. */
+  burstCapacity?: number;
 }
 
 export interface FivaldiApiClientConfig extends ApiConfig<any> {
