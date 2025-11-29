@@ -216,13 +216,13 @@ export interface CustomerEntityDTO {
    */
   customerName2?: string | null;
   /**
-   * Customer email address (Asiakkaan sähköposti)
+   * Customer email address, used in the routing of Fivaldis e-invoices and as the secondary address for the email invoice method. If only one email address is provided, it should be entered here, where it will be used in all cases if Email2 is not provided separately. (Asiakkaan sähköposti)
    * @minLength 0
    * @maxLength 80
    */
   email?: string | null;
   /**
-   * Customer email address2 (Asiakkaan sähköposti2)
+   * Customer email address2, primary address for the email invoice method. (Asiakkaan sähköposti2)
    * @minLength 0
    * @maxLength 80
    */
@@ -279,13 +279,13 @@ export interface CustomerEntityDetailsDTO {
    */
   customerName2?: string | null;
   /**
-   * Customer email address (Asiakkaan sähköposti)
+   * Customer email address, used in the routing of Fivaldis e-invoices and as the secondary address for the email invoice method. If only one email address is provided, it should be entered here, where it will be used in all cases if Email2 is not provided separately. (Asiakkaan sähköposti)
    * @minLength 0
    * @maxLength 80
    */
   email?: string | null;
   /**
-   * Customer email address2 (Asiakkaan sähköposti2)
+   * Customer email address2, primary address for the email invoice method. (Asiakkaan sähköposti2)
    * @minLength 0
    * @maxLength 80
    */
@@ -370,7 +370,7 @@ export interface CustomerEntityDetailsDTO {
    */
   externalId?: string | null;
   /**
-   * Buyerpartyidentifier  (Ostajan asiakastunnukseksi). selitteet (O = OVT, A = Yritystunnus, M = Verkkolaskuosoitteessa annettu muu tunnus, null = Y-tunnus)
+   * Buyerpartyidentifier (Ostajan asiakastunnukseksi), This value is used in e-invoicing only in the e-invoice's BuyerPartyIdentifier field, value is set according to the selection. selitteet (O = OVT, A = Yritystunnus, M = Verkkolaskuosoitteessa annettu muu tunnus, null = Y-tunnus)
    * @minLength 0
    * @maxLength 1
    */
@@ -1069,7 +1069,7 @@ export interface Customer {
 
 export interface Company {
   /** Fivaldi company id */
-  companyId?: number;
+  companyId?: string;
   /** Fivaldi database schema */
   databaseId?: string;
   /** Fivaldi internal company id */
@@ -1534,7 +1534,7 @@ export interface PurchaseInvoiceRow {
   accrualEndDate?: string;
   accrualType?: string;
   accrualAccount?: string;
-  accrualgVatIncluded?: boolean;
+  accrualVatIncluded?: boolean;
   createTime?: string;
   createUser?: string;
   changeTime?: string;
@@ -1543,7 +1543,7 @@ export interface PurchaseInvoiceRow {
 
 export interface PurchaseInvoiceRowPost {
   /** Fivaldi company id */
-  cuid?: number;
+  cuid?: string;
   /** Purchase invoice id */
   invoiceId?: number;
   total?: number;
@@ -1566,9 +1566,36 @@ export interface PurchaseInvoiceRowPost {
   workSiteKey?: number;
 }
 
+export interface PurchaseInvoiceMultiRowPost {
+  /** Fivaldi company id */
+  cuid?: string;
+  /** Purchase invoice id */
+  invoiceId?: number;
+  /** Purchase invoice row id */
+  rowId?: number;
+  total?: number;
+  totalVatIncluded?: number;
+  bookkeepingCode?: string;
+  bookkeepingAccount?: string;
+  bookkeepingDimension1?: string;
+  bookkeepingDimension2?: string;
+  bookkeepingDimension3?: string;
+  bookkeepingDimension4?: string;
+  description?: string;
+  vatPercentageCode?: string;
+  vatStatus?: string;
+  vatPercent?: number;
+  vatDeductionPercent?: number;
+  productCode?: string;
+  productAmount?: number;
+  productUnit?: string;
+  exportType?: string;
+  workSiteKey?: number;
+}
+
 export interface PurchaseInvoiceRowPut {
   /** Fivaldi company id */
-  cuid?: number;
+  cuid?: string;
   /** Purchase invoice id */
   invoiceId?: number;
   /** Purchase invoice row id */
@@ -1595,7 +1622,7 @@ export interface PurchaseInvoiceRowPut {
 
 export interface AccrualDataPost {
   /** Fivaldi company id */
-  cuid?: number;
+  cuid?: string;
   /** Purchase invoice id */
   invoiceId?: number;
   /** Purchase invoice row id */
@@ -1609,7 +1636,7 @@ export interface AccrualDataPost {
 
 export interface AccrualDataPut {
   /** Fivaldi company id */
-  cuid?: number;
+  cuid?: string;
   /** Purchase invoice id */
   invoiceId?: number;
   /** Purchase invoice row id */
@@ -1625,7 +1652,7 @@ export interface AccrualDataPut {
 
 export interface ChartOfAccounts {
   /** Fivaldi company id */
-  cuid?: number;
+  cuid?: string;
   /** Language code of the account descriptions */
   lang?: string;
   dimensions?: BookkeepingDimension[];
@@ -3043,6 +3070,8 @@ export interface ExternalPaymentTypeResponseDTO {
   convergencePriority?: number;
   validityMonths?: ExternalPaymentTypeValidityDTO;
   priceInfos?: ExternalPaymentTypePriceResponseDTO[];
+  /** VAT taxable */
+  vatIncluded?: boolean;
 }
 
 export interface ExternalPaymentTypeAccountResponseDTO {
@@ -3729,7 +3758,7 @@ export interface ExternalPayrollTransactionRowDTO {
   quantity: number;
   /** Multiplier for calculation */
   multiplier?: number;
-  /** Price per unit */
+  /** Price per unit (Only supported for 'Hinta' payCodeIds) */
   unitPrice?: number;
   /**
    * Description of the transaction
@@ -3760,6 +3789,477 @@ export interface ExternalPayrollTransactionRowDTO {
   earningPeriodStart?: string;
   /** End date of earnings period in format dd.MM.yyyy (Ansainta-ajan loppupvm) */
   earningPeriodEnd?: string;
+}
+
+export interface ExternalPaymentTermDTO {
+  /** Payment term identifier */
+  paymentTermId?: number;
+  /** Number of discount days */
+  discountDates?: number;
+  /** Discount percentage */
+  discountPercent?: number | null;
+  /** Net due date in days */
+  netDueDate?: number;
+  /** Whether this is the default payment term */
+  defaultPaymentTerm?: boolean | null;
+  /**
+   * Payment term description
+   * @maxLength 60
+   */
+  description?: string | null;
+}
+
+export interface ExternalDeliveryMethodDTO {
+  /**
+   * Delivery method identifier
+   * @maxLength 3
+   */
+  deliveryMethodId?: string;
+  /** Whether this is the default delivery method */
+  defaultDeliveryMethod?: boolean | null;
+  /**
+   * Delivery method description
+   * @maxLength 80
+   */
+  description?: string | null;
+}
+
+export interface ExternalDeliveryTermDTO {
+  /**
+   * Delivery term identifier
+   * @maxLength 3
+   */
+  deliveryTermId?: string;
+  /** Whether this is the default delivery term */
+  defaultDeliveryTerm?: boolean | null;
+  /**
+   * Delivery term description
+   * @maxLength 80
+   */
+  description?: string | null;
+  /**
+   * Delivery term text
+   * @maxLength 80
+   */
+  deliveryTermText?: string | null;
+}
+
+export interface ExternalCurrencyDTO {
+  /**
+   * Currency code
+   * @maxLength 3
+   */
+  currency?: string;
+  /**
+   * Currency description
+   * @maxLength 40
+   */
+  description?: string | null;
+  /** Currency exchange rate */
+  currencyRate?: number;
+}
+
+export interface ExternalSalesPersonDTO {
+  /**
+   * Sales person identifier
+   * @maxLength 20
+   */
+  salesPersonId?: string | null;
+  /**
+   * Sales person name
+   * @maxLength 40
+   */
+  name?: string | null;
+  /**
+   * Sales person email
+   * @maxLength 40
+   */
+  email?: string | null;
+  /**
+   * Sales person phone number
+   * @maxLength 40
+   */
+  phoneNumber?: string | null;
+}
+
+export interface ExternalPostingGroupDTO {
+  /**
+   * Posting group identifier
+   * @maxLength 10
+   */
+  postingGroupId?: string | null;
+  /**
+   * Posting group description
+   * @maxLength 40
+   */
+  description?: string | null;
+  /** Whether this is for cash sales */
+  cashSales?: boolean | null;
+  /** Whether this is the default posting group for sales */
+  defaultPostingGroupForSales?: boolean | null;
+  /**
+   * Default posting identifier
+   * @maxLength 10
+   */
+  defaultPostingId?: string | null;
+  /**
+   * Accounts receivable account
+   * @maxLength 8
+   */
+  accountsReceivableAccount?: string | null;
+  /**
+   * Default SK1 value
+   * @maxLength 8
+   */
+  defaultSk1?: string | null;
+  /**
+   * Default SK2 value
+   * @maxLength 8
+   */
+  defaultSk2?: string | null;
+  /**
+   * Default SK3 value
+   * @maxLength 8
+   */
+  defaultSk3?: string | null;
+  /**
+   * Default SK4 value
+   * @maxLength 8
+   */
+  defaultSk4?: string | null;
+}
+
+export interface ExternalUnitDTO {
+  /**
+   * Unit identifier
+   * @maxLength 10
+   */
+  unitId?: string | null;
+  /**
+   * Unit code
+   * @maxLength 20
+   */
+  unit?: string | null;
+  /**
+   * Unit description
+   * @maxLength 40
+   */
+  description?: string | null;
+}
+
+export interface ExternalAccountDimensionValueDTO {
+  /** Dimension identifier */
+  dimension?: string | null;
+  /**
+   * Account identifier
+   * @maxLength 8
+   */
+  accountId?: string | null;
+  /**
+   * Finnish account description
+   * @maxLength 80
+   */
+  finAccountDescription?: string | null;
+  /**
+   * English account description
+   * @maxLength 80
+   */
+  engAccountDescription?: string | null;
+  /**
+   * Swedish account description
+   * @maxLength 80
+   */
+  sweAccountDescription?: string | null;
+}
+
+export interface ExternalTransmissionTypeDTO {
+  /**
+   * Transmission type identifier
+   * @maxLength 10
+   */
+  transmissionId?: string | null;
+  /**
+   * Transmission type description
+   * @maxLength 40
+   */
+  description?: string | null;
+  /** Whether this is the default transmission type */
+  defaultTransmissionTypeId?: boolean | null;
+}
+
+export interface ExternalCompanyInvoicingDetailsDTO {
+  /** List of payment terms */
+  paymentTermDTOList?: ExternalPaymentTermDTO[];
+  /** List of delivery methods */
+  deliveryMethodDTOList?: ExternalDeliveryMethodDTO[];
+  /** List of delivery terms */
+  deliveryTermDTOList?: ExternalDeliveryTermDTO[];
+  /** List of currencies */
+  currencyDTOList?: ExternalCurrencyDTO[];
+  /** List of sales persons */
+  salesPersonDTOList?: ExternalSalesPersonDTO[];
+  /** List of posting groups */
+  postingGroupDTOList?: ExternalPostingGroupDTO[];
+  /** List of units */
+  unitDTOList?: ExternalUnitDTO[];
+  /** List of account dimension 1 values */
+  accountDimension1ValueDTOList?: ExternalAccountDimensionValueDTO[];
+  /** List of account dimension 2 values */
+  accountDimension2ValueDTOList?: ExternalAccountDimensionValueDTO[];
+  /** List of account dimension 3 values */
+  accountDimension3ValueDTOList?: ExternalAccountDimensionValueDTO[];
+  /** List of account dimension 4 values */
+  accountDimension4ValueDTOList?: ExternalAccountDimensionValueDTO[];
+  /** List of transmission types */
+  transmissionTypeDTOList?: ExternalTransmissionTypeDTO[];
+}
+
+export interface ExternalPurchaseLedgerInvoiceDTO {
+  /**
+   * Fivaldi company cuid
+   * @maxLength 32
+   */
+  cuid?: string;
+  /**
+   * Supplier identifier
+   * @maxLength 10
+   */
+  supplierId?: string;
+  /**
+   * Bookkeeping period format yyyymm
+   * @max 999999
+   * @example 202510
+   */
+  bookkeepingPeriod?: number;
+  /** Invoice date format dd.MM.yyyy */
+  invoiceDate?: string;
+  /**
+   * Payment term identifier
+   * @maxLength 4
+   */
+  paymentTermId?: string;
+  /** Cash discount due date format dd.MM.yyyy */
+  cashDiscountDueDate?: string;
+  /**
+   * @format bigDecimal
+   * @max 9999.99
+   */
+  cashDiscountPercent?: number;
+  /** Due date format dd.MM.yyyy */
+  dueDate?: string;
+  /**
+   * @format bigDecimal
+   * @max 999999999999.99
+   */
+  eurSum?: number;
+  /**
+   * @format bigDecimal
+   * @max 999999999999.99
+   */
+  eurSaldo?: number;
+  /**
+   * @format bigDecimal
+   * @max 999999999999.99
+   */
+  eurCashSum?: number;
+  /**
+   * @format bigDecimal
+   * @max 999999999999.99
+   */
+  currencySum?: number;
+  /**
+   * @format bigDecimal
+   * @max 999999999999.99
+   */
+  currencySaldo?: number;
+  /** @maxLength 3 */
+  currency?: string;
+  /** @maxLength 20 */
+  originalInvoiceNo?: string;
+  /** @maxLength 20 */
+  bankRefNo?: string;
+  /** @maxLength 420 */
+  bankMessage?: string;
+  /** @maxLength 40 */
+  supplierName1?: string;
+  /** @maxLength 40 */
+  supplierName2?: string;
+  /** @maxLength 80 */
+  supplierAddress?: string;
+  /** @maxLength 80 */
+  supplierCity?: string;
+  /** @maxLength 10 */
+  supplierPostalCode?: string;
+  /**
+   * @format bigDecimal
+   * @max 9999999.9999999
+   */
+  currencyRate?: number;
+  /** @maxLength 16 */
+  journalNo?: string;
+  /** @maxLength 8 */
+  accountsPayableAccount?: string;
+  approvedForPaying?: boolean;
+  /** @maxLength 20 */
+  additionalInfo?: string;
+  bankMessageType?: 'REFERENCE NUMBER' | 'BANK MESSAGE' | 'TAX MESSAGE';
+  /**
+   * @format bigDecimal
+   * @max 999999999999.99
+   */
+  currencyCashSum?: number;
+  /** Booking date format dd.MM.yyyy */
+  bookingDate?: string;
+  /** Change time format dd.MM.yyyy hh24:mi:ss */
+  changeTime?: string;
+  /** @maxLength 30 */
+  changeUser?: string;
+  paymentPriority?: 'URGENT' | 'IMPORTANT' | 'NORMAL' | 'NOT IMPORTANT' | 'CAN WAIT';
+  /** @maxLength 80 */
+  supplierAddress2?: string;
+  typeSepaOrCrossBorder?: 'SEPA' | 'CROSS-BORDER';
+  /** @maxLength 3 */
+  supplierCountryId?: string;
+  typeInvoiceOrCashPayment?: 'INVOICE' | 'CASH PAYMENT';
+  taxBookingType?: 'NETTO' | 'BRUTTO';
+  urgentPayment?: boolean;
+  /** @maxLength 8 */
+  bookkeepingDimension1?: string;
+  /** @maxLength 8 */
+  bookkeepingDimension2?: string;
+  /** @maxLength 8 */
+  bookkeepingDimension3?: string;
+  /** @maxLength 8 */
+  bookkeepingDimension4?: string;
+  /** @maxLength 50 */
+  worksiteId?: string;
+  externalPurchaseLedgerInvoiceRowDTOS?: ExternalPurchaseLedgerInvoiceRowDTO[];
+}
+
+export interface ExternalPurchaseLedgerInvoiceRowDTO {
+  /**
+   * @format bigDecimal
+   * @max 999999999999.99
+   */
+  eurSum?: number;
+  /**
+   * @format bigDecimal
+   * @max 999999999999.99
+   */
+  currencySum?: number;
+  /** @maxLength 8 */
+  bookkeepingAccount?: string;
+  /** @maxLength 8 */
+  bookkeepingDimension1?: string;
+  /** @maxLength 8 */
+  bookkeepingDimension2?: string;
+  /** @maxLength 8 */
+  bookkeepingDimension3?: string;
+  /** @maxLength 8 */
+  bookkeepingDimension4?: string;
+  /** @maxLength 80 */
+  description?: string;
+  /** @maxLength 6 */
+  vatPercentageCode?: string;
+  /**
+   * @format bigDecimal
+   * @max 999999999999.99
+   */
+  eurTax?: number;
+  /**
+   * @format bigDecimal
+   * @max 999999999999.99
+   */
+  currencyTax?: number;
+  /** Change time format dd.MM.yyyy hh24:mi:ss */
+  changeTime?: string;
+  /** @maxLength 30 */
+  changeUser?: string;
+  /** @maxLength 8 */
+  taxAccount?: string;
+  /** @maxLength 8 */
+  taxAccount2?: string;
+  /** @maxLength 2 */
+  exportType?: string;
+  /** @maxLength 8 */
+  purchaseOrderNo?: string;
+  /** @maxLength 35 */
+  productCode?: string;
+  /** @maxLength 14 */
+  productUnit?: string;
+  /** @max 99999999 */
+  productAmount?: number;
+}
+
+export interface ExternalPurchaseLedgerPaymentDTO {
+  /**
+   * Fivaldi company cuid
+   * @maxLength 32
+   */
+  cuid?: string;
+  /** @maxLength 16 */
+  journalNo?: string;
+  /**
+   * Bookkeeping period format yyyymm
+   * @max 999999
+   * @example 202510
+   */
+  bookkeepingPeriod?: number;
+  /** Booking date format dd.MM.yyyy */
+  bookingDate?: string;
+  externalPurchaseLedgerPaymentRowDTOS?: ExternalPurchaseLedgerPaymentRowDTO[];
+}
+
+export interface ExternalPurchaseLedgerPaymentRowDTO {
+  /** @maxLength 10 */
+  supplierId?: string;
+  /** @maxLength 16 */
+  invoiceJournalNo?: string;
+  /**
+   * @format bigDecimal
+   * @max 999999999999.99
+   */
+  eurSum?: number;
+  /**
+   * @format bigDecimal
+   * @max 9999999.9999999
+   */
+  currencyRate?: number;
+  /**
+   * @format bigDecimal
+   * @max 999999999999.99
+   */
+  currencySum?: number;
+  /** @maxLength 20 */
+  bookingType?: string;
+  /** @maxLength 8 */
+  bookingAccount?: string;
+  /** @maxLength 8 */
+  bookkeepingDimension1?: string;
+  /** @maxLength 8 */
+  bookkeepingDimension2?: string;
+  /** @maxLength 8 */
+  bookkeepingDimension3?: string;
+  /** @maxLength 8 */
+  bookkeepingDimension4?: string;
+  /** @maxLength 3 */
+  currency?: string;
+  /** Change time format dd.MM.yyyy hh24:mi:ss */
+  changeTime?: string;
+  /** @maxLength 30 */
+  changeUser?: string;
+  /** @maxLength 6 */
+  vatPercentageCode?: string;
+  /** @maxLength 8 */
+  taxAccount?: string;
+  /** @maxLength 8 */
+  taxAccount2?: string;
+  /** @format double */
+  currencyTax?: number;
+  /** @maxLength 2 */
+  exportType?: string;
+  /** @maxLength 150 */
+  description?: string;
 }
 
 import type { AxiosInstance, AxiosRequestConfig, HeadersDefaults, ResponseType, AxiosResponse } from 'axios';
@@ -3895,7 +4395,7 @@ export class HttpClient<SecurityDataType = unknown> {
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 /**
  * @title Visma Fivaldi Customer API
- * @version 2.12.0
+ * @version 2.13.0
  * @termsOfService https://www.visma.com/trust-centre/smb/service-information/terms-of-service/
  * @baseUrl https://api.fivaldi.net/customer/api
  * @externalDocs https://support.fivaldi.fi/fi/support/solutions/articles/77000567542-visma-fivaldi-api
@@ -3932,7 +4432,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name CompaniesList
      * @summary Get all companies, search by business id or Fivaldi customer id
      * @request GET:/companies
-     * @response `200` `Company` OK
+     * @response `200` `(Company)[]` OK
      * @response `400` `ApiErrorList`
      * @response `401` `any`
      * @response `404` `ApiError`
@@ -3949,7 +4449,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {}
     ) =>
-      this.request<Company, ApiErrorList | ApiError>({
+      this.request<Company[], ApiErrorList | ApiError>({
         path: `/companies`,
         method: 'GET',
         query: query,
@@ -4215,7 +4715,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `429` `any`
      */
     purchasesInvoicesCommentsList: (
-      cuid: number,
+      cuid: string,
       invoiceId: number,
       query?: {
         /** Filter fields of the response objects, only ones provided will be included */
@@ -4246,7 +4746,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `409` `ApiErrorList`
      * @response `429` `any`
      */
-    purchasesInvoicesCommentsCreate: (cuid: number, invoiceId: number, data: Comment, params: RequestParams = {}) =>
+    purchasesInvoicesCommentsCreate: (cuid: string, invoiceId: number, data: Comment, params: RequestParams = {}) =>
       this.request<Comment, ApiErrorList | ApiError>({
         path: `/companies/${cuid}/purchases/invoices/${invoiceId}/comments`,
         method: 'POST',
@@ -4271,7 +4771,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `429` `any`
      */
     purchasesInvoicesRowsList: (
-      cuid: number,
+      cuid: string,
       invoiceId: number,
       query?: {
         /** Filter fields of the response objects, only ones provided will be included */
@@ -4302,9 +4802,39 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `409` `ApiErrorList`
      * @response `429` `any`
      */
-    purchasesInvoicesRowsCreate: (cuid: number, invoiceId: number, data: PurchaseInvoiceRowPost, params: RequestParams = {}) =>
+    purchasesInvoicesRowsCreate: (cuid: string, invoiceId: number, data: PurchaseInvoiceRowPost, params: RequestParams = {}) =>
       this.request<PurchaseInvoiceRow, ApiErrorList | ApiError>({
         path: `/companies/${cuid}/purchases/invoices/${invoiceId}/rows`,
+        method: 'POST',
+        body: data,
+        type: ContentType.Json,
+        format: 'json',
+        ...params
+      }),
+
+    /**
+     * @description Update some of the properties in each of the purchase invoice rows. Each row must include a rowId, which is mandatory for uniquely identifying the row. Missing properties or null values will have no effect. Cuid and invoiceId provided in the parameters take precedence over the corresponding object properties in case of conflict.
+     *
+     * @tags Purchase invoices
+     * @name PurchasesInvoicesUpdatePurchaseInvoiceRowsCreate
+     * @summary Update multiple purchase invoice rows
+     * @request POST:/companies/{cuid}/purchases/invoices/{invoiceId}/updatePurchaseInvoiceRows
+     * @response `200` `(PurchaseInvoiceRow)[]` OK
+     * @response `400` `ApiErrorList`
+     * @response `401` `any`
+     * @response `403` `any`
+     * @response `404` `ApiError`
+     * @response `409` `ApiErrorList`
+     * @response `429` `any`
+     */
+    purchasesInvoicesUpdatePurchaseInvoiceRowsCreate: (
+      cuid: string,
+      invoiceId: number,
+      data: PurchaseInvoiceMultiRowPost[],
+      params: RequestParams = {}
+    ) =>
+      this.request<PurchaseInvoiceRow[], ApiErrorList | ApiError>({
+        path: `/companies/${cuid}/purchases/invoices/${invoiceId}/updatePurchaseInvoiceRows`,
         method: 'POST',
         body: data,
         type: ContentType.Json,
@@ -4327,7 +4857,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `429` `any`
      */
     purchasesInvoicesRowsDetail: (
-      cuid: number,
+      cuid: string,
       invoiceId: number,
       rowId: number,
       query?: {
@@ -4360,7 +4890,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `429` `any`
      */
     purchasesInvoicesRowsUpdate: (
-      cuid: number,
+      cuid: string,
       invoiceId: number,
       rowId: number,
       data: PurchaseInvoiceRowPut,
@@ -4391,7 +4921,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `429` `any`
      */
     purchasesInvoicesRowsPartialUpdate: (
-      cuid: number,
+      cuid: string,
       invoiceId: number,
       rowId: number,
       data: PurchaseInvoiceRowPut,
@@ -4419,7 +4949,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `409` `ApiErrorList`
      * @response `429` `any`
      */
-    purchasesInvoicesRowsDelete: (cuid: number, invoiceId: number, rowId: number, params: RequestParams = {}) =>
+    purchasesInvoicesRowsDelete: (cuid: string, invoiceId: number, rowId: number, params: RequestParams = {}) =>
       this.request<void, ApiErrorList>({
         path: `/companies/${cuid}/purchases/invoices/${invoiceId}/rows/${rowId}`,
         method: 'DELETE',
@@ -4441,7 +4971,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `409` `ApiErrorList`
      * @response `429` `any`
      */
-    purchasesInvoicesRowsAccrualDataCreate: (cuid: number, invoiceId: number, data: AccrualDataPost, params: RequestParams = {}) =>
+    purchasesInvoicesRowsAccrualDataCreate: (cuid: string, invoiceId: number, data: AccrualDataPost, params: RequestParams = {}) =>
       this.request<PurchaseInvoiceRow, ApiErrorList | ApiError>({
         path: `/companies/${cuid}/purchases/invoices/${invoiceId}/rows/accrualData`,
         method: 'POST',
@@ -4467,7 +4997,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `429` `any`
      */
     purchasesInvoicesRowsAccrualDataUpdate: (
-      cuid: number,
+      cuid: string,
       invoiceId: number,
       rowId: number,
       accrualNumber: number,
@@ -4499,7 +5029,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `429` `any`
      */
     purchasesInvoicesRowsAccrualDataPartialUpdate: (
-      cuid: number,
+      cuid: string,
       invoiceId: number,
       rowId: number,
       accrualNumber: number,
@@ -4529,7 +5059,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `429` `any`
      */
     purchasesInvoicesRowsAccrualDataDelete: (
-      cuid: number,
+      cuid: string,
       invoiceId: number,
       rowId: number,
       accrualNumber: number,
@@ -4901,7 +5431,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `429` `any`
      */
     chartOfAccountsList: (
-      cuid: number,
+      cuid: string,
       query?: {
         /** Account dimension, defaults to 0 */
         dimension?:
@@ -4951,7 +5481,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `429` `any`
      */
     chartOfAccountsDimensionsCreate: (
-      cuid: number,
+      cuid: string,
       query: {
         /** Dimension */
         dimension:
@@ -4986,7 +5516,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @response `403` `any`
      * @response `429` `any`
      */
-    archiveFilesDetail: (cuid: number, fileId: number, params: RequestParams = {}) =>
+    archiveFilesDetail: (cuid: string, fileId: number, params: RequestParams = {}) =>
       this.request<string, ApiErrorList>({
         path: `/companies/${cuid}/archive/files/${fileId}`,
         method: 'GET',
@@ -5001,14 +5531,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @name SalesCompanyInvoicingDetailsList
      * @summary Get Fivaldi Company invoicing details
      * @request GET:/companies/{cuid}/sales/company-invoicing-details
-     * @response `200` `string` OK
+     * @response `200` `ExternalCompanyInvoicingDetailsDTO` OK
      * @response `400` `ApiErrorList`
      * @response `401` `any`
      * @response `403` `any`
      * @response `429` `any`
      */
     salesCompanyInvoicingDetailsList: (cuid: string, params: RequestParams = {}) =>
-      this.request<string, ApiErrorList>({
+      this.request<ExternalCompanyInvoicingDetailsDTO, ApiErrorList>({
         path: `/companies/${cuid}/sales/company-invoicing-details`,
         method: 'GET',
         format: 'json',
@@ -7013,6 +7543,158 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: 'POST',
         body: data,
         type: ContentType.Json,
+        format: 'json',
+        ...params
+      }),
+
+    /**
+ * @description Retrieve purchase ledger invoices for a company between specified dates.
+ *
+ * @tags Purchase ledger
+ * @name PurchaseLedgerGetPurchaseLedgerInvoicesList
+ * @summary Get purchase ledger invoices
+ * @request GET:/companies/{cuid}/purchase-ledger/getPurchaseLedgerInvoices
+ * @response `200` `(GeneralResponseEnvelope & {
+    result?: (ExternalPurchaseLedgerInvoiceDTO)[],
+
+})` OK
+ * @response `400` `ApiErrorList`
+ * @response `401` `any`
+ * @response `403` `any`
+ * @response `404` `ApiError`
+ * @response `429` `any`
+ */
+    purchaseLedgerGetPurchaseLedgerInvoicesList: (
+      cuid: string,
+      query: {
+        /**
+         * Start date in the format dd.MM.yyyy
+         * @format date
+         */
+        fromDate: string;
+        /**
+         * End date in the format dd.MM.yyyy
+         * @format date
+         */
+        toDate: string;
+      },
+      params: RequestParams = {}
+    ) =>
+      this.request<
+        GeneralResponseEnvelope & {
+          result?: ExternalPurchaseLedgerInvoiceDTO[];
+        },
+        ApiErrorList | ApiError
+      >({
+        path: `/companies/${cuid}/purchase-ledger/getPurchaseLedgerInvoices`,
+        method: 'GET',
+        query: query,
+        format: 'json',
+        ...params
+      }),
+
+    /**
+ * @description Retrieve a specific purchase ledger invoice by journal number.
+ *
+ * @tags Purchase ledger
+ * @name PurchaseLedgerGetPurchaseLedgerInvoiceDetail
+ * @summary Get a specific purchase ledger invoice
+ * @request GET:/companies/{cuid}/purchase-ledger/getPurchaseLedgerInvoice/{journalNumber}
+ * @response `200` `(GeneralResponseEnvelope & {
+    result?: ExternalPurchaseLedgerInvoiceDTO,
+
+})` OK
+ * @response `400` `ApiErrorList`
+ * @response `401` `any`
+ * @response `403` `any`
+ * @response `404` `ApiError`
+ * @response `429` `any`
+ */
+    purchaseLedgerGetPurchaseLedgerInvoiceDetail: (cuid: string, journalNumber: string, params: RequestParams = {}) =>
+      this.request<
+        GeneralResponseEnvelope & {
+          result?: ExternalPurchaseLedgerInvoiceDTO;
+        },
+        ApiErrorList | ApiError
+      >({
+        path: `/companies/${cuid}/purchase-ledger/getPurchaseLedgerInvoice/${journalNumber}`,
+        method: 'GET',
+        format: 'json',
+        ...params
+      }),
+
+    /**
+ * @description Retrieve purchase ledger payments for a company between specified dates.
+ *
+ * @tags Purchase ledger
+ * @name PurchaseLedgerGetPurchaseLedgerPaymentsList
+ * @summary Get purchase ledger payments
+ * @request GET:/companies/{cuid}/purchase-ledger/getPurchaseLedgerPayments
+ * @response `200` `(GeneralResponseEnvelope & {
+    result?: (ExternalPurchaseLedgerPaymentDTO)[],
+
+})` OK
+ * @response `400` `ApiErrorList`
+ * @response `401` `any`
+ * @response `403` `any`
+ * @response `404` `ApiError`
+ * @response `429` `any`
+ */
+    purchaseLedgerGetPurchaseLedgerPaymentsList: (
+      cuid: string,
+      query: {
+        /**
+         * Start date in the format dd.MM.yyyy
+         * @format date
+         */
+        fromDate: string;
+        /**
+         * End date in the format dd.MM.yyyy
+         * @format date
+         */
+        toDate: string;
+      },
+      params: RequestParams = {}
+    ) =>
+      this.request<
+        GeneralResponseEnvelope & {
+          result?: ExternalPurchaseLedgerPaymentDTO[];
+        },
+        ApiErrorList | ApiError
+      >({
+        path: `/companies/${cuid}/purchase-ledger/getPurchaseLedgerPayments`,
+        method: 'GET',
+        query: query,
+        format: 'json',
+        ...params
+      }),
+
+    /**
+ * @description Retrieve a specific purchase ledger payment by journal number.
+ *
+ * @tags Purchase ledger
+ * @name PurchaseLedgerGetPurchaseLedgerPaymentDetail
+ * @summary Get a specific purchase ledger payment
+ * @request GET:/companies/{cuid}/purchase-ledger/getPurchaseLedgerPayment/{journalNumber}
+ * @response `200` `(GeneralResponseEnvelope & {
+    result?: ExternalPurchaseLedgerPaymentDTO,
+
+})` OK
+ * @response `400` `ApiErrorList`
+ * @response `401` `any`
+ * @response `403` `any`
+ * @response `404` `ApiError`
+ * @response `429` `any`
+ */
+    purchaseLedgerGetPurchaseLedgerPaymentDetail: (cuid: string, journalNumber: string, params: RequestParams = {}) =>
+      this.request<
+        GeneralResponseEnvelope & {
+          result?: ExternalPurchaseLedgerPaymentDTO;
+        },
+        ApiErrorList | ApiError
+      >({
+        path: `/companies/${cuid}/purchase-ledger/getPurchaseLedgerPayment/${journalNumber}`,
+        method: 'GET',
         format: 'json',
         ...params
       })
